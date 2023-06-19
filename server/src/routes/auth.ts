@@ -19,20 +19,20 @@ export async function AuthSystem(app: FastifyInstance) {
           code,
         },
         headers: {
-          Accept: 'application/json'
-        }
+          Accept: "application/json",
+        },
       }
     );
     const { accessToken } = accessTokenResponse.data;
-    const userResponse = await axios.get('https://api.github.com/user', {
+    const userResponse = await axios.get("https://api.github.com/user", {
       headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
 
-    console.log('=--=--=--=--=');
+    console.log("=--=--=--=--=");
     console.log(userResponse.data);
-    console.log('=--=--=--=--=');
+    console.log("=--=--=--=--=");
 
     const userSchema = z.object({
       id: z.number(),
@@ -41,14 +41,33 @@ export async function AuthSystem(app: FastifyInstance) {
       avatar_url: z.string().url(),
     });
 
-    
-
-    const userInfo = userSchema.parse(userResponse.data)
+    const userInfo = userSchema.parse(userResponse.data);
     let user = await prisma.user.findUnique({
       where: {
-        // githubId: userInfo.id
-      }
-    })
+        githubId: userInfo.id,
+      },
+    });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          githubId: userInfo.id,
+          login: userInfo.login,
+          name: userInfo.name,
+          avatarUrl: userInfo.avatar_url,
+        },
+      });
+    }
 
+    const token = app.jwt.sign(
+      {
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+      },
+      {
+        sub: user.id,
+        expiresIn: "12 days",
+      }
+    );
+    return { token };
   });
 }
