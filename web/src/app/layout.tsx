@@ -1,7 +1,8 @@
-import { Header } from '@/components/header'
+
+import { Header } from '@/components/Header/header'
 import './globals.css'
 import { Bai_Jamjuree as BJ } from 'next/font/google'
-import { Footer } from '@/components/footer'
+import { Footer } from '@/components/Footer/footer'
 
 const Bj = BJ({ subsets: ['latin'], variable: '--font-bj', weight: ['400', '600', '700'] })
 
