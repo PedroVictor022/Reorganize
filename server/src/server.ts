@@ -1,8 +1,12 @@
-import express from "express";
+import fastify from "fastify";
+import { notesRoutes } from "./routes/notes";
 
-const app = express();
-app.use(express.json());
+const app = fastify();
+app.register(notesRoutes)
 
-app.listen(3333, () => {
-  console.log(`Server running at: http//localhost:3333`);
-});
+app.listen({
+   port: 3333,
+})
+.then(() => {
+   console.log(`Server is running on http://localhost:3333`);
+})
